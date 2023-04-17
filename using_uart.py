@@ -4,8 +4,8 @@ import gc, sys
 from machine import UART    #导入UART模块
 from fpioa_manager import fm
 # 串口 设置 P7 RX P8 TX
-fm.register(7, fm.fpioa.UART2_RX, force = True)      # 配置 7 脚为 UART2_RX 强制注册
-fm.register(8, fm.fpioa.UART2_TX, force = True)      # 配置 8 脚为 UART2_TX 强制注册
+fm.register(7, fm.fpioa.UART1_RX, force = True)      # 配置 7 脚为 UART2_RX 强制注册
+fm.register(8, fm.fpioa.UART1_TX, force = True)      # 配置 8 脚为 UART2_TX 强制注册
 uart_A = UART(UART.UART1, 115200, 8, 1, 0, timeout=100000, read_buf_len=4096)#数据位 8 停止位 1 校验位 0 超时时间 100000ms 缓冲区大小 4096
 
 def lcd_show_except(e):
@@ -51,6 +51,7 @@ def main(anchors, labels = None, model_addr="/sd/m.kmodel", sensor_window=(224, 
     kpu.init_yolo2(task, 0.5, 0.3, 5, anchors) # threshold:[0,1], nms_value: [0, 1]
     try:
         while 1:
+            uart_A.write("detecting"+ '\r\n')################################
             img = sensor.snapshot()
             t = time.ticks_ms()
             objects = kpu.run_yolo2(task, img)
@@ -60,7 +61,7 @@ def main(anchors, labels = None, model_addr="/sd/m.kmodel", sensor_window=(224, 
                     pos = obj.rect()    #获取物体的位置
                     img.draw_rectangle(pos) #在图片上画出物体的位置
                     img.draw_string(pos[0], pos[1], "%s : %.2f" %(labels[obj.classid()], obj.value()), scale=2, color=(255, 0, 0))
-                    uart_A.write(labels[obj.classid()] + '\r\n') #将检测到的物体发送到串口
+                    uart_A.write(labels[obj.classid()]+ '\r\n') #将检测到的物体发送到串口########################
                     print('检测到'+labels[obj.classid()] + '\r\n')
             img.draw_string(0, 200, "t:%dms" %(t), scale=2, color=(255, 0, 0))  #在图片上写入检测时间
             lcd.display(img)    #LCD显示图片
