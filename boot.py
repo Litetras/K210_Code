@@ -58,7 +58,7 @@ def main(anchors, labels = None, model_addr="/sd/m.kmodel", sensor_window=(224, 
             t = time.ticks_ms() - t
             if objects:     #如果检测到物体
                 for obj in objects: #遍历检测到的物体
-                    pos = obj.rect()    #获取物体的位置
+                    pos = obj.rect()    #获取物体的位置，返回一个坐标元组（x,y,w,h）
                     img.draw_rectangle(pos) #在图片上画出物体的位置
                     img.draw_string(pos[0], pos[1], "%s : %.2f" %(labels[obj.classid()], obj.value()), scale=2, color=(255, 0, 0))
                     uart_A.write(labels[obj.classid()]+ '\r\n') #将检测到的物体发送到串口########################
